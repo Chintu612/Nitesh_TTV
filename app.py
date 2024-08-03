@@ -1,4 +1,4 @@
-from openai import OpenAI
+from groq import Groq
 import os
 import edge_tts
 import json

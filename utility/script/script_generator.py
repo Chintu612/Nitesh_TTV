@@ -1,9 +1,26 @@
 import os
-from openai import OpenAI
+from groq import Groq
 import json
 
-OPENAI_API_KEY = os.getenv('OPENAI_KEY')
-client = OpenAI(api_key=OPENAI_API_KEY)
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+client = Groq(api_key=GROQ_API_KEY)
+
+def extract_script(json_string):
+  """
+  Extracts the value associated with the 'script' key from a JSON string.
+
+  Args:
+    json_string: A string containing a JSON object.
+
+  Returns:
+    The value of the 'script' key, or None if the key is not found or the 
+    input is not valid JSON.
+  """
+  try:
+    data = json.loads(json_string)
+    return data.get('script')
+  except json.JSONDecodeError:
+    return None
 
 def generate_script(topic):
     prompt = (
@@ -27,7 +44,7 @@ def generate_script(topic):
 
         Keep it brief, highly interesting, and unique.
 
-        Stictly output the script in a JSON format like below, and only provide a parsable JSON object with the key 'script'.
+        Strictly output the script in a JSON format like below, and only provide a parsable JSON object with the key 'script'.
 
         # Output
         {"script": "Here is the script ..."}
@@ -35,18 +52,14 @@ def generate_script(topic):
     )
 
     response = client.chat.completions.create(
-            model="gpt-4o",
-            messages=[
-                {"role": "system", "content": prompt},
-                {"role": "user", "content": topic}
-            ]
-        )
+        messages=[
+            {"role": "system", "content": prompt},
+            {"role": "user", "content": topic}
+        ],
+        model="llama3-8b-8192",  # Make sure this model is available through the Groq API
+    )
+    
+    
     content = response.choices[0].message.content
-    try:
-        script = json.loads(content)["script"]
-    except Exception as e:
-        json_start_index = content.find('{')
-        json_end_index = content.rfind('}')
-        content = content[json_start_index:json_end_index+1]
-        script = json.loads(content)["script"]
-    return script
+
+    return extract_script(content)
