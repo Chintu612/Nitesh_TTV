@@ -2,7 +2,7 @@ import os
 from groq import Groq
 import json
 
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
 client = Groq(api_key=GROQ_API_KEY)
 
 def extract_script(json_string):
