@@ -44,7 +44,7 @@ def generate_script(topic):
 
         Keep it brief, highly interesting, and unique.
 
-        Strictly output the script in a JSON format like below, and only provide a parsable JSON object with the key 'script'.
+        Strictly output the script in a JSON format like below, and only provide a parsable JSON object with the key 'script'. Value of the script should be string data type and it should not contain any characters like \n,\t \\ etc..
 
         # Output
         {"script": "Here is the script ..."}
@@ -61,5 +61,5 @@ def generate_script(topic):
     
     
     content = response.choices[0].message.content
-
+    print("Content : ",content)
     return extract_script(content)

@@ -3,10 +3,11 @@ import os
 import json
 import re
 from datetime import datetime
+from groq import Groq
 from utility.utils import log_response,LOG_TYPE_GPT
 
-OPENAI_API_KEY = os.environ.get('OPENAI_KEY')
-client = OpenAI(api_key=OPENAI_API_KEY)
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
+client = Groq(api_key=GROQ_API_KEY)
 log_directory = ".logs/gpt_logs"
 
 prompt = """# Instructions
@@ -43,7 +44,7 @@ def getVideoSearchQueriesTimed(script,captions_timed):
         
         out = [[[0,0],""]]
         while out[-1][0][1] != end:
-            content = call_OpenAI(script,captions_timed).replace("'",'"')
+            content = call_GROQ(script,captions_timed).replace("'",'"')
             try:
                 out = json.loads(content)
             except Exception as e:
@@ -56,19 +57,18 @@ def getVideoSearchQueriesTimed(script,captions_timed):
    
     return None
 
-def call_OpenAI(script,captions_timed):
+def call_GROQ(script,captions_timed):
     user_content = """Script: {}
 Timed Captions:{}
 """.format(script,"".join(map(str,captions_timed)))
     print("Content", user_content)
     
     response = client.chat.completions.create(
-        model="gpt-4o",
-        temperature=1,
         messages=[
             {"role": "system", "content": prompt},
-            {"role": "user", "content": user_content}
-        ]
+            {"role": "user", "content": topic}
+        ],
+        model="llama3-8b-8192",  # Make sure this model is available through the Groq API
     )
     
     text = response.choices[0].message.content.strip()
